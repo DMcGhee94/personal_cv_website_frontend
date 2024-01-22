@@ -1,8 +1,8 @@
 html, body {
     height: 100%;
     width: 100%;
-    padding: 0;
-    margin: 0;
+    padding: 0px;
+    margin: 0px;
     color: #f2f2f2;
 }
 
@@ -13,7 +13,18 @@ body {
 }
 
 header {
-    min-height: 50px;
+    display: flex;
+    background-color: #040D12;
+    margin: 0px;
+    border-bottom: 5px solid white;
+    flex-wrap: wrap;
+}
+
+header > h1 {
+    flex-grow: 1;
+    font-size: 35;
+    text-align: center;
+    flex-basis: 200;
 }
 
 aside {
@@ -27,39 +38,8 @@ footer {
     margin-left: 40px;
 }
 
-.header {
-    display: flex;
-    flex-wrap: nowrap;
-    background-color: #040D12;
-    margin: 0px;
-    align-items: center;
-    border-bottom: 5px solid white;
-}
-
-h1 {
-    font-size: 100%;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.header > h1 {
-    width: 100%;
-    margin: 40px;
-    text-align: center;
-    font-size: 35;
-}
-
-#header-name {
-    text-align: left;
-}
-
-#header-title {
-    text-align: right;
-}
-
 #aside-left-block {
-    width: 30%;
+    flex-basis: 30%;
     text-align: right;
 }
 
@@ -73,14 +53,7 @@ h2 {
 }
 
 .aside-left-block-info > ul {
-    direction: rtl;
     margin: 0px;
-    padding-right: 15px;
-}
-
-.aside-left-block-info > ul > li {
-    direction: ltr;
-    unicode-bidi: embed;
 }
 
 .aside-left-block-info > p {
@@ -88,7 +61,7 @@ h2 {
 }
 
 main {
-    width: 70%;
+    flex-basis: 70%;
     display: flex;
     flex-direction: column;
 }
@@ -103,7 +76,6 @@ main {
     justify-content: space-around;
     margin: 20px;
     padding: 0px 10px;
-    flex-grow: 1;
 }
 
 .info-display {
@@ -115,7 +87,14 @@ main {
 
 #main-content {
     display: flex;
+    flex-wrap: wrap;
     flex-grow: 1;
+    padding-left: 20px;
+}
+
+.main-content-columns {
+    flex-grow: 1;
+    flex-basis: 200;
 }
 
 .info-display-detail > h2, .info-display-detail > h3, .info-display-detail > h4, .info-display-detail > p {
