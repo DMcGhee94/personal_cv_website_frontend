@@ -6,22 +6,23 @@ html, body {
     color: #f2f2f2;
 }
 
-#body {
+body {
     background-color: #183D3D;
     display: flex;
     flex-direction: column;
 }
 
-#body-header {
+header {
     min-height: 50px;
 }
 
-#body-main {
+aside {
     display: flex;
+    flex-direction: column;
     flex-grow: 1;
 }
 
-#body-footer {
+footer {
     min-height: 50px;
     margin-left: 40px;
 }
@@ -57,12 +58,12 @@ h1 {
     text-align: right;
 }
 
-#main-left-block {
+#aside-left-block {
     width: 30%;
     text-align: right;
 }
 
-.main-left-block-info {
+.aside-left-block-info {
     padding-top: 20px;
 }
 
@@ -71,12 +72,57 @@ h2 {
     padding: 0px;
 }
 
-.main-left-block-info > ul {
+.aside-left-block-info > ul {
     direction: rtl;
     margin: 0px;
     padding-right: 15px;
 }
 
-.main-left-block-info > p {
+.aside-left-block-info > ul > li {
+    direction: ltr;
+    unicode-bidi: embed;
+}
+
+.aside-left-block-info > p {
     margin: 0px;
+}
+
+main {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.display-box {
+    border-radius: 1em;
+}
+
+.content-selector {
+    display: flex;
+    background-color: #040D12;
+    justify-content: space-around;
+    margin: 20px;
+    padding: 0px 10px;
+    flex-grow: 1;
+}
+
+.info-display {
+    background-color: #475852;
+    padding: 1px 20px;
+    margin: 20px;
+    text-align: left;
+}
+
+#main-content {
+    display: flex;
+    flex-grow: 1;
+}
+
+.info-display-detail > h2, .info-display-detail > h3, .info-display-detail > h4, .info-display-detail > p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.info-display-detail {
+    padding: 10px 0px
 }
