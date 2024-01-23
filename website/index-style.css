@@ -4,6 +4,7 @@ html, body {
     padding: 0px;
     margin: 0px;
     color: #f2f2f2;
+    font-family: "Montserrat", "Poppins", Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -87,6 +88,7 @@ main {
     padding: 1px 20px;
     margin: 20px;
     text-align: left;
+    display: none;
 }
 
 #main-content {
@@ -108,4 +110,16 @@ main {
 
 .info-display-detail {
     padding: 10px 0px
+}
+
+.info-display-active {
+    display: block;
+}
+
+a {
+    color: lightblue;
+}
+
+a:visited {
+    color: lightgray;
 }
