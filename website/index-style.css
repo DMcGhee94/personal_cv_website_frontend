@@ -50,10 +50,13 @@ footer {
 h2 {
     margin: 0px;
     padding: 0px;
+    text-decoration: underline;
 }
 
-.aside-left-block-info > ul {
+ul {
     margin: 0px;
+    padding: 0px;
+    list-style: none;
 }
 
 .aside-left-block-info > p {
