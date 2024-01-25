@@ -38,12 +38,17 @@ header {
   width: 100%;
 }
 
+.sticky + #main-content {
+    padding-top: 102px;
+}
+
 header > h1 {
     flex-grow: 1;
     font-size: 35;
     text-align: center;
     flex-basis: 200;
     font-weight: bolder;
+    margin: 1%;
 }
 
 aside {
@@ -81,6 +86,10 @@ ul {
 
 .aside-left-block-info > p {
     margin: 0px;
+}
+
+.aside-left-block-info > p, .aside-left-block-info > h2 , .aside-left-block-info > ul {
+    margin-right: 10px;
 }
 
 main {
@@ -136,7 +145,12 @@ main {
 }
 
 .info-display-detail {
-    padding: 10px 0px
+    padding: 10px 0px;
+    border-top: 1px solid #f2f2f2;
+}
+
+.info-display-detail-first {
+    border: none;
 }
 
 .info-display-active {
