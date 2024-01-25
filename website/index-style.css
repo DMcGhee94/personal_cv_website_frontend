@@ -13,17 +13,6 @@ body {
     flex-direction: column;
 }
 
-.info-selector {
-    color: #f2f2f2;
-    background-color: transparent;
-    border: 0px none;
-    font-weight: bold;
-    font-size: large;
-    padding: 5px 20px;
-    border-radius: 0.5em;
-    margin: 5px;
-}
-
 header {
     display: flex;
     background-color: #040D12;
@@ -111,6 +100,19 @@ main {
     padding: 5px;
     align-items: center;
     font-size: large;
+    flex-wrap: wrap;
+}
+
+.info-selector {
+    color: #f2f2f2;
+    background-color: transparent;
+    border: 0px none;
+    font-weight: bold;
+    font-size: large;
+    padding: 5px 20px;
+    border-radius: 0.5em;
+    margin: 5px;
+    flex-basis: 200;
 }
 
 .content-selector-active {
