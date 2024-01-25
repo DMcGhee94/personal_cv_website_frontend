@@ -61,13 +61,13 @@
     
         <main class="main-content-columns">
             <section class="content-selector display-box">
-                <button>Employment</button>
-                <button id="content-selector-active">Contract History</button>
-                <button>Certifications</button>
-                <button>Other Projects</button>
+                <button class="info-selector content-selector-active" onclick="changeActiveInfoDisplay(this)">Employment</button>
+                <button class="info-selector" onclick="changeActiveInfoDisplay(this)">Contract History</button>
+                <button class="info-selector" onclick="changeActiveInfoDisplay(this)">Certifications</button>
+                <button class="info-selector" onclick="changeActiveInfoDisplay(this)">Other Projects</button>
             </section>
-            <section class="info-display display-box">
-                <article class="info-display-detail">
+            <section id="info-display-box-employment" class="info-display display-box info-display-active">
+                <article class="info-display-detail info-display-detail-first">
                     <h2>Inov8 Consulting Ltd</h2>
                     <h3>Lead Consultant</h3>
                     <h4>June 2016 - Present</h4>
@@ -122,7 +122,7 @@
                     </p>
                 </article>
             </section>
-            <section class="info-display display-box info-display-active">
+            <section id="info-display-box-contract" class="info-display display-box">
                 <article class="info-display-detail info-display-detail-first">
                     <h2>Tesco Bank (Via Inov8 Consulting Ltd)</h2>
                     <h3>Regulatory Reporting Developer</h3>
@@ -191,8 +191,13 @@
                     </p>                            
                 </article>
             </section>
+            <section id="info-display-box-certifications" class="info-display display-box">
+            </section>
+            <section id="info-display-box-otherprojects" class="info-display display-box">
+            </section>
         </main>
     </section>
     <script src="functions/sticky-header.js"></script>
+    <script src="functions/content-selector.js"></script>
 </body>
 </html>
