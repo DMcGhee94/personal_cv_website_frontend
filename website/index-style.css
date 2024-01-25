@@ -177,3 +177,28 @@ a {
 a:visited {
     color: lightgray;
 }
+
+#info-display-box-certifications {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#info-display-box-certifications > article {
+    flex-grow: 1;
+    flex-basis: 200;
+    border: 2px solid red;
+    min-height: 50px;
+}
+
+.certification-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    min-width: 33%;
+    text-align: center;
+}
+
+.certification-card > img {
+    width: 30%;
+}
