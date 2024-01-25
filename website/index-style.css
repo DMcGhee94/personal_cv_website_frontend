@@ -32,6 +32,12 @@ header {
     flex-wrap: wrap;
 }
 
+.sticky {
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
 header > h1 {
     flex-grow: 1;
     font-size: 35;
@@ -43,12 +49,13 @@ header > h1 {
 aside {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    justify-content: space-between;
 }
 
 footer {
     min-height: 50px;
     margin-left: 40px;
+    align-items: flex-end;
 }
 
 #aside-left-block {
