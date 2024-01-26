@@ -107,7 +107,7 @@ main {
     display: flex;
     background-color: #040D12;
     justify-content: space-around;
-    margin: 20px;
+    margin: 20px 20px 10px 20px;
     padding: 5px;
     align-items: center;
     font-size: large;
@@ -126,6 +126,10 @@ main {
     flex-basis: 200;
 }
 
+.info-selector:hover {
+    cursor: pointer;
+}
+
 .content-selector-active {
     font-weight: bold;
     background-color: #475852;
@@ -135,7 +139,7 @@ main {
 .info-display {
     background-color: #475852;
     padding: 1px 20px;
-    margin: 20px;
+    margin: 10px 20px;
     text-align: left;
     display: none;
 }
@@ -178,27 +182,46 @@ a:visited {
     color: lightgray;
 }
 
-#info-display-box-certifications {
+.info-display-certifications {
     display: flex;
     flex-wrap: wrap;
-}
-
-#info-display-box-certifications > article {
-    flex-grow: 1;
-    flex-basis: 200;
-    border: 2px solid red;
-    min-height: 50px;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    max-width: 100%;
+    min-width: 33.3333%;
 }
 
 .certification-card {
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    width: 200px;
+    height: 250px;
+    flex-basis: 200;
+    border-radius: 0.5em;
+    padding: 10px;
     align-items: center;
-    max-width: 100%;
-    min-width: 33%;
     text-align: center;
+    margin: 10px;
+}
+
+.certification-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
 .certification-card > img {
-    width: 30%;
+    width: 100%;
+}
+
+.certification-card > h2 {
+    text-wrap: wrap;
+    font-size: medium;
+    width: fit-content;
+    color: #f2f2f2;
+    text-decoration: none;
+}
+
+.info-display-certifications > a {
+    color: #f2f2f2;
+    text-decoration: none;
 }
