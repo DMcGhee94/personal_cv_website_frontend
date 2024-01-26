@@ -78,10 +78,15 @@ h2 {
     font-weight: bold;
 }
 
-ul {
+.aside-list {
     margin: 0px;
     padding: 0px;
     list-style: none;
+}
+
+ul {
+    margin: 0px;
+    padding-bottom: 0px;
 }
 
 .aside-left-block-info > p {
