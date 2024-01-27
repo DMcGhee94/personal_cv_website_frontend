@@ -146,6 +146,9 @@ main {
     padding: 1px 20px;
     margin: 10px 20px;
     text-align: left;
+}
+
+.content-section {
     display: none;
 }
 
