@@ -26,7 +26,7 @@ function changeActiveInfoDisplay(clickedButton) {
     console.log(infoDisplayBox);
 
     // Remove "active" class from all info sections
-    const sections = document.querySelectorAll('.info-display');
+    const sections = document.querySelectorAll('.content-section');
     console.log(sections);
 
     sections.forEach(function(section) {
