@@ -59,8 +59,25 @@ aside {
 
 footer {
     min-height: 50px;
-    margin-left: 40px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
     align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+footer > p {
+    flex-grow: 1;
+    flex-basis: 200;
+}
+
+#copyright {
+    text-align: left;
+}
+
+#viewcount {
+    text-align: right;
 }
 
 #aside-left-block {
