@@ -6,6 +6,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  RESOURCE_GROUP: 'dev-personal-cv-website-frontend'
+
 # Controls when the workflow will run
 on:
   workflow_dispatch:
@@ -24,3 +27,9 @@ jobs:
                 client-id: ${{ secrets.AZURE_CLIENT_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+            - name: 'Deploy Storage Account'
+              run: |
+                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-infra --template-file ./bicep-scripts/storageAccount.bicep --parameters ./bicep-scripts/parameters/storageAccount.bicepparam
+                storageAccName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-infra --query properties.outputs.storageAccountName.value | tr -d \")
+                echo "STORAGE_ACCOUNT_NAME=$storageAccName" >> $GITHUB_ENV

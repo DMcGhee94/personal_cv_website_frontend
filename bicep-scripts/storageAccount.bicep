@@ -1,5 +1,10 @@
+@description('Storage account prefix')
+@maxLength(13)
+@minLength(1)
+param namePrefix string
+
 @description('Define the name for the storage account')
-param storageAccountName string
+param storageAccountName string = '${namePrefix}${uniqueString(resourceGroup().id)}'
 
 @description('Define the location the resources should reside in')
 param location string
@@ -15,7 +20,7 @@ param location string
   'Standard_RAGZRS'
   'Standard_ZRS'
 ])
-param sku string = 'Standard_ZRS'
+param sku string = 'Standard_LRS'
 
 @description('Define the account type to be created')
 @allowed([
@@ -41,6 +46,19 @@ param publicAccessEnabled bool = false
 @description('Define if the account allows cross-tenant replication')
 param crossTenentReplication bool = false
 
+@description('Define the access tier of the account')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string = 'Enabled'
+
+@description('Define if the account will support only HTTPS traffic')
+param httpsOnly bool = true
+
+@description('Does the account support hierarchical namespaces?')
+param hnsEnabled bool = false
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
   location: location
@@ -52,5 +70,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     accessTier: accessTier
     allowBlobPublicAccess: publicAccessEnabled
     allowCrossTenantReplication: crossTenentReplication
+    publicNetworkAccess: publicNetworkAccess
+    supportsHttpsTrafficOnly: httpsOnly
+    isHnsEnabled: hnsEnabled
   }
 }
+
+output storageAccountName string = storageAccountName
