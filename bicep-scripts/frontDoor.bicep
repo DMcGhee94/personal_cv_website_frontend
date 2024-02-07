@@ -1,63 +1,96 @@
-@description('The host name that should be used when connecting to the origin.')
-param originHostName string
-
-@description('The path that should be used when connecting to the origin.')
-param originPath string = ''
-
 @description('The name of the Front Door endpoint to create. This must be globally unique.')
-param endpointName string
+param endpointName string = 'afd-${uniqueString(resourceGroup().id)}'
 
-@description('The name of the SKU to use when creating the Front Door profile. If you use Private Link this must be set to `Premium_AzureFrontDoor`.')
+@description('The name of the SKU to use when creating the Front Door profile.')
 @allowed([
   'Standard_AzureFrontDoor'
   'Premium_AzureFrontDoor'
 ])
-param skuName string
+param skuName string = 'Standard_AzureFrontDoor'
 
-@description('The protocol that should be used when connecting from Front Door to the origin.')
+@description('The host name that should be used when connecting from Front Door to the origin.')
+param originHostName string
+
+@description('The name of the DNS zone to create.')
+param dnsZoneName string = '${uniqueString(resourceGroup().id)}.azurequickstart.org'
+
+@description('The name of the CNAME record to create within the DNS zone. The record will be an alias to your Front Door endpoint.')
+param cnameRecordName string = 'www'
+
+@description('Define the environment running in')
 @allowed([
-  'HttpOnly'
-  'HttpsOnly'
-  'MatchRequest'
+  'dev'
+  'prod'
 ])
-param originForwardingProtocol string = 'HttpsOnly'
+param environment string
 
-@description('If you are using Private Link to connect to the origin, this should specify the resource ID of the Private Link resource (e.g. an App Service application, Azure Storage account, etc). If you are not using Private Link then this should be empty.')
-param privateEndpointResourceId string = ''
-
-@description('If you are using Private Link to connect to the origin, this should specify the resource type of the Private Link resource. The allowed value will depend on the specific Private Link resource type you are using. If you are not using Private Link then this should be empty.')
-param privateLinkResourceType string = ''
-
-@description('If you are using Private Link to connect to the origin, this should specify the location of the Private Link resource. If you are not using Private Link then this should be empty.')
-param privateEndpointLocation string = ''
-
-// When connecting to Private Link origins, we need to assemble the privateLinkOriginDetails object with various pieces of data.
-var isPrivateLinkOrigin = (privateEndpointResourceId != '')
-var privateLinkOriginDetails = {
-  privateLink: {
-    id: privateEndpointResourceId
-  }
-  groupId: (privateLinkResourceType != '') ? privateLinkResourceType : null
-  privateLinkLocation: privateEndpointLocation
-  requestMessage: 'Please approve this connection.'
-}
-
-param profileName string 
+var profileName = 'MyFrontDoor'
 var originGroupName = 'MyOriginGroup'
 var originName = 'MyOrigin'
 var routeName = 'MyRoute'
 
-param domain string
-
-param subdomain string
-
-param azureDnsZoneName string
-
-var customDomainName = empty(subdomain) ? domain : subdomain
-
+// Create a valid resource name for the custom domain. Resource names don't include periods.
+var customDomainResourceName = replace('${cnameRecordName}.${dnsZoneName}', '.', '-')
 var dnsRecordTimeToLive = 3600
 
-resource profile 'Microsoft.Cdn/profiles@2023-05-01' = {
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: dnsZoneName
+  location: 'global'
+}
+
+resource cnameRecord 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+  parent: dnsZone
+  name: cnameRecordName
+  properties: {
+    TTL: dnsRecordTimeToLive
+    CNAMERecord: {
+      cname: endpoint.properties.hostName
+    }
+  }
+}
+
+resource validationTxtRecord 'Microsoft.Network/dnsZones/TXT@2018-05-01' = {
+  parent: dnsZone
+  name: '_dnsauth.${cnameRecordName}'
+  properties: {
+    TTL: dnsRecordTimeToLive
+    TXTRecords: [
+      {
+        value: [
+          customDomain.properties.validationProperties.validationToken
+        ]
+      }
+    ]
+  }
+}
+
+resource aliasRecordApex 'Microsoft.Network/dnsZones/A@2018-05-01' = if (environment == 'prod') {
+  parent: dnsZone
+  name: '@'
+  properties: {
+    TTL: dnsRecordTimeToLive
+    targetResource: {
+      id: endpoint.properties.hostName
+    }
+  }
+}
+
+resource validationTxtRecordApex 'Microsoft.Network/dnsZones/TXT@2018-05-01' = if (environment == 'prod') {
+  parent: dnsZone
+  name: '_dnsauth'
+  properties: {
+    TTL: dnsRecordTimeToLive
+    TXTRecords: [
+      {
+        value: [
+          customDomain.properties.validationProperties.validationToken
+        ]
+      }
+    ]
+  }
+}
+
+resource profile 'Microsoft.Cdn/profiles@2020-09-01' = {
   name: profileName
   location: 'global'
   sku: {
@@ -65,16 +98,17 @@ resource profile 'Microsoft.Cdn/profiles@2023-05-01' = {
   }
 }
 
-resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2023-05-01' = {
+resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2020-09-01' = {
   name: endpointName
   parent: profile
   location: 'global'
   properties: {
+    originResponseTimeoutSeconds: 240
     enabledState: 'Enabled'
   }
 }
 
-resource originGroup 'Microsoft.Cdn/profiles/originGroups@2021-06-01' = {
+resource originGroup 'Microsoft.Cdn/profiles/originGroups@2020-09-01' = {
   name: originGroupName
   parent: profile
   properties: {
@@ -91,7 +125,19 @@ resource originGroup 'Microsoft.Cdn/profiles/originGroups@2021-06-01' = {
   }
 }
 
-resource origin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01' = {
+resource customDomain 'Microsoft.Cdn/profiles/customDomains@2020-09-01' = {
+  name: customDomainResourceName
+  parent: profile
+  properties: {
+    hostName: substring(cnameRecord.properties.fqdn, 0, length(cnameRecord.properties.fqdn) - 1)
+    tlsSettings: {
+      certificateType: 'ManagedCertificate'
+      minimumTlsVersion: 'TLS12'
+    }
+  }
+}
+
+resource origin 'Microsoft.Cdn/profiles/originGroups/origins@2020-09-01' = {
   name: originName
   parent: originGroup
   properties: {
@@ -101,21 +147,24 @@ resource origin 'Microsoft.Cdn/profiles/originGroups/origins@2021-06-01' = {
     originHostHeader: originHostName
     priority: 1
     weight: 1000
-    sharedPrivateLinkResource: isPrivateLinkOrigin ? privateLinkOriginDetails : null
   }
 }
 
-resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
+resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2020-09-01' = {
   name: routeName
   parent: endpoint
-  dependsOn: [
+  dependsOn:[
     origin // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
   ]
   properties: {
+    customDomains: [
+      {
+        id: customDomain.id
+      }
+    ]
     originGroup: {
       id: originGroup.id
     }
-    originPath: any(originPath != '' ? originPath : null)
     supportedProtocols: [
       'Http'
       'Https'
@@ -123,55 +172,9 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
     patternsToMatch: [
       '/*'
     ]
-    forwardingProtocol: originForwardingProtocol
+    queryStringCachingBehavior: 'IgnoreQueryString'
+    forwardingProtocol: 'HttpsOnly'
     linkToDefaultDomain: 'Enabled'
     httpsRedirect: 'Enabled'
   }
 }
-
-resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' existing = {
-  name: azureDnsZoneName
-  scope: resourceGroup('dns-zone')
-}
-
-resource customDomain 'Microsoft.Cdn/profiles/customDomains@2023-05-01' = {
-  name: replace(customDomainName, '.', '-')
-  parent: profile
-  properties: {
-    hostName: empty(subdomain) ? domain : '${subdomain}.${domain}'
-    azureDnsZone: dnsZone
-    tlsSettings: {
-      minimumTlsVersion: 'TLS12'
-      certificateType: 'ManagedCertificate'
-    }
-  }
-}
-
-resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
-  name: customDomainName
-  parent: dnsZone
-  properties: {
-    TTL: dnsRecordTimeToLive
-    CNAMERecord: {
-      cname: endpoint.properties.hostName
-    }
-  }
-}
-
-resource txt 'Microsoft.Network/dnsZones/TXT@2018-05-01' = {
-  name: customDomainName
-  parent: dnsZone
-  properties: {
-    TTL: dnsRecordTimeToLive
-    TXTRecords: [
-      {
-        value: [
-          customDomain.properties.validationProperties.validationToken
-        ]
-      }
-    ]
-  }
-}
-
-output frontDoorEndpointHostName string = endpoint.properties.hostName
-output frontDoorId string = profile.properties.frontDoorId
