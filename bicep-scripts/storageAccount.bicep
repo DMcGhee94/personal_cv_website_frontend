@@ -77,3 +77,4 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 }
 
 output storageAccountName string = storageAccountName
+output websiteEndpoint string = storageAccount.properties.primaryEndpoints.web
