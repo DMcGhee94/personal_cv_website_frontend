@@ -70,7 +70,7 @@ resource aliasRecordApex 'Microsoft.Network/dnsZones/A@2018-05-01' = if (environ
   properties: {
     TTL: dnsRecordTimeToLive
     targetResource: {
-      id: endpoint.properties.hostName
+      id: endpoint.id
     }
   }
 }
