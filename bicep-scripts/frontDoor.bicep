@@ -42,12 +42,22 @@ var privateLinkOriginDetails = {
   requestMessage: 'Please approve this connection.'
 }
 
-var profileName = 'MyFrontDoor'
+param profileName string 
 var originGroupName = 'MyOriginGroup'
 var originName = 'MyOrigin'
 var routeName = 'MyRoute'
 
-resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
+param domain string
+
+param subdomain string
+
+param azureDnsZoneName string
+
+var customDomainName = empty(subdomain) ? domain : subdomain
+
+var dnsRecordTimeToLive = 3600
+
+resource profile 'Microsoft.Cdn/profiles@2023-05-01' = {
   name: profileName
   location: 'global'
   sku: {
@@ -55,7 +65,7 @@ resource profile 'Microsoft.Cdn/profiles@2021-06-01' = {
   }
 }
 
-resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2021-06-01' = {
+resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2023-05-01' = {
   name: endpointName
   parent: profile
   location: 'global'
@@ -116,6 +126,50 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2021-06-01' = {
     forwardingProtocol: originForwardingProtocol
     linkToDefaultDomain: 'Enabled'
     httpsRedirect: 'Enabled'
+  }
+}
+
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' existing = {
+  name: azureDnsZoneName
+  scope: resourceGroup('dns-zone')
+}
+
+resource customDomain 'Microsoft.Cdn/profiles/customDomains@2023-05-01' = {
+  name: replace(customDomainName, '.', '-')
+  parent: profile
+  properties: {
+    hostName: empty(subdomain) ? domain : '${subdomain}.${domain}'
+    azureDnsZone: dnsZone
+    tlsSettings: {
+      minimumTlsVersion: 'TLS12'
+      certificateType: 'ManagedCertificate'
+    }
+  }
+}
+
+resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+  name: customDomainName
+  parent: dnsZone
+  properties: {
+    TTL: dnsRecordTimeToLive
+    CNAMERecord: {
+      cname: endpoint.properties.hostName
+    }
+  }
+}
+
+resource txt 'Microsoft.Network/dnsZones/TXT@2018-05-01' = {
+  name: customDomainName
+  parent: dnsZone
+  properties: {
+    TTL: dnsRecordTimeToLive
+    TXTRecords: [
+      {
+        value: [
+          customDomain.properties.validationProperties.validationToken
+        ]
+      }
+    ]
   }
 }
 
