@@ -6,4 +6,4 @@ param endpointName = 'dmcv-website'
 
 param skuName = 'Standard_AzureFrontDoor'
 
-param environment = 'dev'
+param environment = 'prod'
