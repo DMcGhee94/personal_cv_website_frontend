@@ -7,7 +7,8 @@ permissions:
   contents: read
 
 env:
-  RESOURCE_GROUP: 'dev-personal-cv-website-frontend'
+  RESOURCE_GROUP: 'personal-cv-website-frontend'
+  PRIMARY_DEPLOYMENT_REGION: 'uksouth'
 
 # Controls when the workflow will run
 on:
@@ -27,21 +28,28 @@ jobs:
                 client-id: ${{ secrets.AZURE_CLIENT_ID }}
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
+            - name: 'Create resource group'
+              run: |
+                if [ $(az group exists --name ${{ env.RESOURCE_GROUP }}) = false ]; then
+                  az group create --name ${{ env.RESOURCE_GROUP }} --location ${{ env.PRIMARY_DEPLOYMENT_REGION }}
+                fi
 
             - name: 'Deploy Storage Account'
               run: |
-                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-infra --template-file ./bicep-scripts/storageAccount.bicep --parameters ./bicep-scripts/parameters/storageAccount.bicepparam
+                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-storage --template-file ./bicep-scripts/storageAccount.bicep --parameters ./bicep-scripts/parameters/storageAccount.bicepparam
                 
-                storageAccName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-infra --query properties.outputs.storageAccountName.value | tr -d \")
+                storageAccName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-storage --query properties.outputs.storageAccountName.value | tr -d \")
                 echo "STORAGE_ACCOUNT_NAME=$storageAccName" >> $GITHUB_ENV
 
-                websiteEndpoint=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-infra --query properties.outputs.websiteEndpoint.value | tr -d \")
+                websiteEndpoint=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-storage --query properties.outputs.websiteEndpoint.value | tr -d \")
                 echo "WEBSITE_ENDPOINT=$websiteEndpoint" >> $GITHUB_ENV
 
             - name: 'Update Storage Account Properties'
               run: |
                 az storage blob service-properties update --account-name ${{ env.STORAGE_ACCOUNT_NAME }} --static-website true --index-document index.html --404-document 404.html 
+                az storage blob upload-batch -s ./website -d '$web' --account-name ${{ env.STORAGE_ACCOUNT_NAME }}
 
             - name: 'Update Storage Account Properties'
               run: |
-                az storage blob upload-batch -s ./website -d '$web' --account-name ${{ env.STORAGE_ACCOUNT_NAME }}
+                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-frontdoor --template-file ./bicep-scripts/frontDoor.bicep --parameters ./bicep-scripts/parameters/frontDoor.bicepparam -p originHostName=${{ env.WEBSITE_ENDPOINT }} -p dnsZoneName=darren-mcghee.com
