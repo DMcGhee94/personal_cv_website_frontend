@@ -1,4 +1,4 @@
-const functionUrl = "https://fnapp7smkosjl3tpco.azurewebsites.net/api/viewcount";
+const functionUrl = "https://fnapphgqownitbsoac.azurewebsites.net/api/viewcount";
 
 const triggerViewCount = async (method) => {
     return fetch(functionUrl, {
