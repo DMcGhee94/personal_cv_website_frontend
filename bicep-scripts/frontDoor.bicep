@@ -1,5 +1,5 @@
-@description('The name of the Front Door endpoint to create. This must be globally unique.')
-param endpointName string = 'afd-${uniqueString(resourceGroup().id)}'
+@description('The prefix of the Front Door endpoint to create. This must be globally unique.  Will have a unique string appended during deployment.')
+param endpointPrefix string
 
 @description('The name of the SKU to use when creating the Front Door profile.')
 @allowed([
@@ -99,7 +99,7 @@ resource profile 'Microsoft.Cdn/profiles@2020-09-01' = {
 }
 
 resource endpoint 'Microsoft.Cdn/profiles/afdEndpoints@2020-09-01' = {
-  name: endpointName
+  name: '${endpointPrefix}-${uniqueString(resourceGroup().id)}'
   parent: profile
   location: 'global'
   properties: {

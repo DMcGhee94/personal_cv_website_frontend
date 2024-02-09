@@ -1,5 +1,5 @@
 using '../storageAccount.bicep'
 
-param namePrefix = 'dmcv'
+param namePrefix = ''
 
-param location = 'uksouth'
+param location = ''

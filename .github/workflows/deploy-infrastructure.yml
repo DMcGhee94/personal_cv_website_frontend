@@ -7,9 +7,10 @@ permissions:
   contents: read
 
 env:
-  RESOURCE_GROUP: 'personal-cv-website-frontend'
+  RESOURCE_GROUP: 'personal-cv-website'
   PRIMARY_DEPLOYMENT_REGION: 'uksouth'
   WEBSITE_DOMAIN: 'darren-mcghee.com'
+  PREFIX: 'dmcv'
 
 # Controls when the workflow will run
 on:
@@ -43,7 +44,7 @@ jobs:
 
             - name: 'Deploy Storage Account'
               run: |
-                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-storage-${{ env.UTC_NOW }} --template-file ./bicep-scripts/storageAccount.bicep --parameters ./bicep-scripts/parameters/storageAccount.bicepparam
+                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} --name deploy-website-storage-${{ env.UTC_NOW }} --template-file ./bicep-scripts/storageAccount.bicep --parameters ./bicep-scripts/parameters/storageAccount.bicepparam -p namePrefix=${{ env.PREFIX }}
                 
                 storageAccName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-storage-${{ env.UTC_NOW }} --query properties.outputs.storageAccountName.value | tr -d \")
                 echo "STORAGE_ACCOUNT_NAME=$storageAccName" >> $GITHUB_ENV
@@ -58,4 +59,4 @@ jobs:
 
             - name: 'Deploy the FrontDoor and DNS Zone'
               run: |
-                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --template-file ./bicep-scripts/frontDoor.bicep --parameters ./bicep-scripts/parameters/frontDoor.bicepparam -p originHostName=${{ env.WEBSITE_ENDPOINT }} -p dnsZoneName=${{ env.WEBSITE_DOMAIN }}
+                az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --template-file ./bicep-scripts/frontDoor.bicep --parameters ./bicep-scripts/parameters/frontDoor.bicepparam -p originHostName=${{ env.WEBSITE_ENDPOINT }} -p dnsZoneName=${{ env.WEBSITE_DOMAIN }} -p endpointPrefix=${{ env.PREFIX }}
