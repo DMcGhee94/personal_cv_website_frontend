@@ -49,7 +49,7 @@ jobs:
                 storageAccName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-storage-${{ env.UTC_NOW }} --query properties.outputs.storageAccountName.value | tr -d \")
                 echo "STORAGE_ACCOUNT_NAME=$storageAccName" >> $GITHUB_ENV
 
-                websiteEndpoint=$(az deployment group show -g personal-cv-website-frontend -n deploy-website-storage-${{ env.UTC_NOW }} --query properties.outputs.websiteEndpoint.value | tr -d \" | sed 's/^https:\/\///' | sed 's/\/$//')
+                websiteEndpoint=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-storage-${{ env.UTC_NOW }} --query properties.outputs.websiteEndpoint.value | tr -d \" | sed 's/^https:\/\///' | sed 's/\/$//')
                 echo "WEBSITE_ENDPOINT=$websiteEndpoint" >> $GITHUB_ENV
 
             - name: 'Update Storage Account Properties'
