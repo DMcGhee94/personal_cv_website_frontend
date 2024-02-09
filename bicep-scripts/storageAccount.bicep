@@ -1,13 +1,12 @@
 @description('Storage account prefix')
 @maxLength(13)
-@minLength(1)
 param namePrefix string
 
 @description('Define the name for the storage account')
 param storageAccountName string = '${namePrefix}${uniqueString(resourceGroup().id)}'
 
 @description('Define the location the resources should reside in')
-param location string
+param location string = resourceGroup().location
 
 @description('Define the SKU of the resources')
 @allowed([

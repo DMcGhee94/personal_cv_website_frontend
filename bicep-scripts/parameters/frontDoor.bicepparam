@@ -2,7 +2,7 @@ using '../frontDoor.bicep'
 
 param originHostName = ''
 
-param endpointName = 'dmcv-website'
+param endpointPrefix = ''
 
 param skuName = 'Standard_AzureFrontDoor'
 
