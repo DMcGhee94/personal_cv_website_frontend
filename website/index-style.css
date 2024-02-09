@@ -82,7 +82,7 @@ footer > p {
 
 #aside-left-block {
     flex-basis: 30%;
-    text-align: right;
+    text-align: left;
 }
 
 .aside-left-block-info {
