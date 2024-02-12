@@ -178,3 +178,7 @@ resource route 'Microsoft.Cdn/profiles/afdEndpoints/routes@2020-09-01' = {
     httpsRedirect: 'Enabled'
   }
 }
+
+output profileName string = profileName
+output endpointName string = endpoint.name
+output endpointDoman string = endpoint.properties.hostName

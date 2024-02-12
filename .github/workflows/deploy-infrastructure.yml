@@ -55,8 +55,21 @@ jobs:
             - name: 'Update Storage Account Properties'
               run: |
                 az storage blob service-properties update --account-name ${{ env.STORAGE_ACCOUNT_NAME }} --static-website true --index-document index.html --404-document 404.html 
-                az storage blob upload-batch -s ./website -d '$web' --account-name ${{ env.STORAGE_ACCOUNT_NAME }} --overwrite true
+                az storage blob upload-batch -s ./website -d '$web' --account-name ${{ env.STORAGE_ACCOUNT_NAME }} --overwrite true --content-cache "max-age=100"
 
             - name: 'Deploy the FrontDoor and DNS Zone'
               run: |
                 az deployment group create --resource-group ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --template-file ./bicep-scripts/frontDoor.bicep --parameters ./bicep-scripts/parameters/frontDoor.bicepparam -p originHostName=${{ env.WEBSITE_ENDPOINT }} -p dnsZoneName=${{ env.WEBSITE_DOMAIN }} -p endpointPrefix=${{ env.PREFIX }}
+
+                profileName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --query properties.outputs.profileName.value | tr -d \" | tr -d \")
+                echo "PROFILE_NAME=$profileName" >> $GITHUB_ENV
+
+                endpointName=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --query properties.outputs.endpointName.value | tr -d \" | tr -d \")
+                echo "ENDPOINT_NAME=$endpointName" >> $GITHUB_ENV
+
+                endpointDoman=$(az deployment group show -g ${{ env.RESOURCE_GROUP }} -n deploy-website-frontdoor-${{ env.UTC_NOW }} --query properties.outputs.endpointDoman.value | tr -d \" | tr -d \")
+                echo "ENDPOINT_DOMAIN=$endpointDoman" >> $GITHUB_ENV
+
+            - name: 'Purge Front Door cache'
+              run: |
+                az afd endpoint purge --resource-group ${{ env.RESOURCE_GROUP }} --profile-name ${{ env.PROFILE_NAME }} --endpoint-name ${{ env.ENDPOINT_NAME }} --domains ${{ env.ENDPOINT_DOMAIN }} --content-paths '/*'
